@@ -2,7 +2,7 @@
 
 Stock Additions is a fork of openpilot designed to be minimal in design while boasting various feature additions and behavior improvements over stock. I have a 2017 Toyota Corolla with comma pedal, so most of my changes are designed to improve the longitudinal performance.
 
-Want to request a feature or create a bug report? [Open an issue here!](https://github.com/ShaneSmiskol/openpilot/issues/new/choose) Want to reach me to debug an issue or have a question? `Shane#6175` on Discord!
+Want to request a feature or create a bug report? [Open an issue here!](https://github.com/sshane/openpilot/issues/new/choose) Want to reach me to debug an issue or have a question? `Shane#6175` on Discord!
 
 [View Stock Additions Changelog](/SA_RELEASES.md)
 
@@ -12,7 +12,7 @@ Want to request a feature or create a bug report? [Open an issue here!](https://
 ### Behavior Changes
 * [**Dynamic follow (now with profiles!)**](#dynamic-follow-3-profiles) - 3 + auto profiles to control distance
   * [**`auto-df` model for automatic distance profile switching**](#Automatic-DF-profile-switching)
-* **Lane Speed**  [***❗ALL LANE SPEED FEATURES REMOVED TEMPORARILY❗***](https://github.com/ShaneSmiskol/openpilot/blob/stock_additions/SA_RELEASES.md#stock-additions-v066---2021-02-27-082)
+* **Lane Speed**  [***❗ALL LANE SPEED FEATURES REMOVED TEMPORARILY❗***](https://github.com/sshane/openpilot/blob/SA-master/SA_RELEASES.md#stock-additions-v066---2021-02-27-082)
   * [**Lane Speed Alerts**](#Lane-Speed-alerts) - alerts for when an adjacent lane is faster
   * [**Dynamic camera offsetting**](#Dynamic-camera-offset-based-on-oncoming-traffic) - moves you over if adjacent lane has oncoming traffic
 * [**Dynamic gas**](#dynamic-gas) - smoother gas control
@@ -61,9 +61,9 @@ It's only been trained on about an hour of data, so it's not perfect yet, but it
 If you're annoyed by the silent alerts that show when the model has changed the profile automatically, just use [opEdit](#Customize-this-fork-opEdit) and set `hide_auto_df_alerts` to `True`. Auto profile and model will remain functional but will not show alerts.
 
 Resources:
-- [The auto-df repo.](https://github.com/ShaneSmiskol/auto-df)
-- [The model file.](https://github.com/ShaneSmiskol/openpilot/blob/stock_additions/selfdrive/controls/lib/dynamic_follow/auto_df.py)
-- I converted the Keras model to be able to run with pure NumPy using [Konverter](https://github.com/ShaneSmiskol/Konverter).
+- [The auto-df repo.](https://github.com/sshane/auto-df)
+- [The model file.](https://github.com/sshane/openpilot/blob/SA-master/selfdrive/controls/lib/dynamic_follow/auto_df.py)
+- I converted the Keras model to be able to run with pure NumPy using [Konverter](https://github.com/sshane/Konverter).
 
 ---
 ### Lane Speed alerts
@@ -160,7 +160,7 @@ Here are the main parameters you can change with this fork:
 
 A full list of parameters that you can modify are [located here](common/op_params.py#L40).
 
-An archive of opParams [lives here.](https://github.com/ShaneSmiskol/op_params)
+An archive of opParams [lives here.](https://github.com/sshane/op_params)
 
 Parameters are stored at `/data/op_params.json`
 
@@ -178,7 +178,7 @@ Therefore, if your device sees an update while you're driving it will reboot app
 
 ---
 ### ZSS Support
-If you have a Prius with a ZSS ([Zorrobyte](https://github.com/zorrobyte) Steer Sensor), you can use this fork to take full advantage of your high-precision angle sensor! Added support for ZSS with [PR #198](https://github.com/ShaneSmiskol/openpilot/pull/198), there's nothing you need to do. Special thanks to [Trae](https://github.com/d412k5t412) for helping testing the addition!
+If you have a Prius with a ZSS ([Zorrobyte](https://github.com/zorrobyte) Steer Sensor), you can use this fork to take full advantage of your high-precision angle sensor! Added support for ZSS with [PR #198](https://github.com/sshane/openpilot/pull/198), there's nothing you need to do. Special thanks to [Trae](https://github.com/d412k5t412) for helping testing the addition!
 
 If you have a ZSS but not a Prius, let me know and I can add support for your car.
 
@@ -199,31 +199,31 @@ To install Stock Additions, just run the following on your EON/C2 (make sure to 
 ```
 cd /data/
 mv openpilot openpilot.old  # or equivalent
-git clone -b stock_additions --single-branch https://github.com/shanesmiskol/openpilot --depth 1
+git clone -b SA-master --single-branch https://github.com/sshane/openpilot --depth 1
 reboot
 ```
 
 The `--depth 1` flag shallow clones the fork, it ends up being about 90 Mb so you can get the fork up and running quickly. Once you install Stock Additions, [automatic updating](#Automatic-updates) should always keep openpilot up to date with the latest from my fork!
 
-*Or use the [emu CLI](https://github.com/emu-sh/.oh-my-comma) to easily switch to this fork's default branch: `emu fork switch ShaneSmiskol`. The initial setup may take longer than the above command, but you gain the ability to switch to any fork you want.*
+*Or use the [emu CLI](https://github.com/emu-sh/.oh-my-comma) to easily switch to this fork's default branch: `emu fork switch sshane`. The initial setup may take longer than the above command, but you gain the ability to switch to any fork you want.*
 
 *Or (last or, I promise!) you can use my handy fork installation link during NEOS setup after a factory reset: **https://smiskol.com/fork/shane***
 
 ---
 ### Branches
 Most of the branches on this fork are development branches I use as various openpilot tests. The few that more permanent are the following:
-  * [`stock_additions`](https://github.com/ShaneSmiskol/openpilot/tree/stock_additions): This is similar to stock openpilot's release branch. Will receive occasional and tested updates to Stock Additions.
+  * [`stock_additions`](https://github.com/sshane/openpilot/tree/stock_additions): This is similar to stock openpilot's release branch. Will receive occasional and tested updates to Stock Additions.
   * `stock_additions-devel` or `SA-staging`: My development branch of Stock Additions I use to test new features or changes; similar to the master branch. Not recommendeded as a daily driver.
 
 ---
 ### Archive Stock Additions branches
-* [Stock Additions 0.7](https://github.com/ShaneSmiskol/openpilot-archive/tree/stock_additions-07)
-* [Stock Additions 0.7.1](https://github.com/ShaneSmiskol/openpilot-archive/tree/stock_additions-071)
-* [Stock Additions 0.7.4](https://github.com/ShaneSmiskol/openpilot-archive/tree/stock_additions-074)
-* [Stock Additions 0.7.5](https://github.com/ShaneSmiskol/openpilot-archive/tree/stock_additions-075)
-* [Stock Additions 0.7.7](https://github.com/ShaneSmiskol/openpilot-archive/tree/stock_additions-077)
-* [Stock Additions 0.7.10](https://github.com/ShaneSmiskol/openpilot-archive/tree/stock_additions-0710)
-* [Stock Additions 0.8](https://github.com/ShaneSmiskol/openpilot/tree/stock_additions-08)
+* [Stock Additions 0.7](https://github.com/sshane/openpilot-archive/tree/stock_additions-07)
+* [Stock Additions 0.7.1](https://github.com/sshane/openpilot-archive/tree/stock_additions-071)
+* [Stock Additions 0.7.4](https://github.com/sshane/openpilot-archive/tree/stock_additions-074)
+* [Stock Additions 0.7.5](https://github.com/sshane/openpilot-archive/tree/stock_additions-075)
+* [Stock Additions 0.7.7](https://github.com/sshane/openpilot-archive/tree/stock_additions-077)
+* [Stock Additions 0.7.10](https://github.com/sshane/openpilot-archive/tree/stock_additions-0710)
+* [Stock Additions 0.8](https://github.com/sshane/openpilot/tree/stock_additions-08)
 
 ---
 ### Videos
