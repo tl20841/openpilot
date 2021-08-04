@@ -98,9 +98,6 @@ class DynamicFollow:
     self.user_profile = self.df_profiles.relaxed  # just a starting point
     self.model_profile = self.df_profiles.relaxed
 
-    self.last_effective_profile = self.user_profile
-    self.profile_change_time = 0
-
     self.sng = False
     self.car_data = CarData()
     self.lead_data = LeadData()
@@ -268,10 +265,6 @@ class DynamicFollow:
       df_profile = self.model_profile
     else:
       df_profile = self.user_profile
-
-    if df_profile != self.last_effective_profile:
-      self.profile_change_time = sec_since_boot()
-    self.last_effective_profile = df_profile
 
     x_vel = [0.0, 1.8627, 3.7253, 5.588, 7.4507, 9.3133, 11.5598, 13.645, 22.352, 31.2928, 33.528, 35.7632, 40.2336]  # velocities
     if df_profile == self.df_profiles.stock:
