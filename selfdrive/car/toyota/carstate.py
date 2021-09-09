@@ -52,7 +52,7 @@ class CarState(CarStateBase):
 
     ret.steeringAngleDeg = cp.vl["STEER_ANGLE_SENSOR"]["STEER_ANGLE"] + cp.vl["STEER_ANGLE_SENSOR"]["STEER_FRACTION"]
     torque_sensor_angle_deg = cp.vl["STEER_TORQUE_SENSOR"]["STEER_ANGLE"]
-    zss_angle_deg = cp.vl["SECONDARY_STEER_ANGLE"]["ZORRO_STEER"]
+    zss_angle_deg = cp.vl["SECONDARY_STEER_ANGLE"]["ZORRO_STEER"] if self.has_zss else 0.
 
     # Some newer models have a more accurate angle measurement in the TORQUE_SENSOR message. Use if non-zero or ZSS
     # Also only get offset when ZSS comes up in case it's slow to start sending messages
