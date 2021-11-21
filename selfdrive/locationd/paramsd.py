@@ -41,16 +41,27 @@ class ParamsLearner:
       yaw_rate = msg.angularVelocityCalibrated.value[2]
       yaw_rate_std = msg.angularVelocityCalibrated.std[2]
 
+      roll = msg.orientationNED.value[0]
+      # roll_std = msg.orientationNED.std[2]
+      roll_valid = msg.orientationNED.valid
+
       yaw_rate_valid = msg.angularVelocityCalibrated.valid
       yaw_rate_valid = yaw_rate_valid and 0 < yaw_rate_std < 10  # rad/s
       yaw_rate_valid = yaw_rate_valid and abs(yaw_rate) < 1  # rad/s
 
       if self.active:
-        if msg.inputsOK and msg.posenetOK and yaw_rate_valid:
-          self.kf.predict_and_observe(t,
-                                      ObservationKind.ROAD_FRAME_YAW_RATE,
-                                      np.array([[-yaw_rate]]),
-                                      np.array([np.atleast_2d(yaw_rate_std**2)]))
+        if msg.inputsOK and msg.posenetOK:
+
+          if yaw_rate_valid:
+            self.kf.predict_and_observe(t,
+                                        ObservationKind.ROAD_FRAME_YAW_RATE,
+                                        np.array([[-yaw_rate]]),
+                                        np.array([np.atleast_2d(yaw_rate_std**2)]))
+
+          if roll_valid:
+            self.kf.predict_and_observe(t,
+                                        ObservationKind.ROAD_ROLL,
+                                        np.array([[roll]]))
         self.kf.predict_and_observe(t, ObservationKind.ANGLE_OFFSET_FAST, np.array([[0]]))
 
     elif which == 'carState':
