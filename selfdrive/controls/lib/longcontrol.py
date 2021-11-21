@@ -82,7 +82,7 @@ class LongControl():
       a_target = min(a_target_lower, a_target_upper)
 
       v_target = long_plan.speeds[0]
-      v_target_future = long_plan.speeds[14]  # ~2 seconds
+      v_target_future = long_plan.speeds[-1]  # ~2 seconds
     else:
       v_target = 0.0
       v_target_future = 0.0
@@ -113,7 +113,7 @@ class LongControl():
 
       # Toyota starts braking more when it thinks you want to stop
       # Freeze the integrator so we don't accelerate to compensate, and don't allow positive acceleration
-      prevent_overshoot = not CP.stoppingControl and CS.vEgo < 1.5 and v_target_future < 0.7 and a_target < 0.0
+      prevent_overshoot = not CP.stoppingControl and CS.vEgo < 1.5 and v_target_future < 0.7 and v_target_future < v_target
       deadzone = interp(CS.vEgo, CP.longitudinalTuning.deadzoneBP, CP.longitudinalTuning.deadzoneV)
       freeze_integrator = prevent_overshoot
 

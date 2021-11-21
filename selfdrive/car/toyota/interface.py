@@ -155,7 +155,7 @@ class CarInterface(CarInterfaceBase):
       ret.steerRatio = 13.7
       tire_stiffness_factor = 0.7933
       ret.mass = 3400. * CV.LB_TO_KG + STD_CARGO_KG  # mean between normal and hybrid
-      ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.6], [0.1]]
+      ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.2], [0.05]]
       ret.lateralTuning.pid.kf = 0.00006
 
     elif candidate in [CAR.HIGHLANDER_TSS2, CAR.HIGHLANDERH_TSS2]:
@@ -392,7 +392,7 @@ class CarInterface(CarInterfaceBase):
     # intercepting the DSU is a community feature since it requires unofficial hardware
     ret.communityFeature = ret.enableGasInterceptor or ret.enableDsu or ret.smartDsu
 
-    if candidate in [CAR.COROLLA_TSS2, CAR.COROLLAH_TSS2, CAR.RAV4_TSS2, CAR.RAV4H_TSS2, CAR.LEXUS_NX_TSS2]:
+    if candidate in TSS2_CAR:
       # Improved longitudinal tune
       ret.longitudinalTuning.deadzoneBP = [0.]
       ret.longitudinalTuning.deadzoneV = [0.]
@@ -403,11 +403,11 @@ class CarInterface(CarInterfaceBase):
       ret.vEgoStopping = 0.2  # car is near 0.1 to 0.2 when car starts requesting stopping accel
       ret.vEgoStarting = 0.2  # needs to be > or == vEgoStopping
       ret.startAccel = 0.0  # Toyota requests 0 instantly, then hands control off to some controller
-      ret.stopAccel = -0.4  # Toyota requests -0.4 when stopped
+      ret.stopAccel = -2.0  # Toyota requests -0.4 when stopped
       ret.stoppingDecelRate = 0.8  # reach stopping target smoothly - seems to take 0.5 seconds to go from 0 to -0.4
-      ret.startingAccelRate = 6.0  # release brakes fast
-      ret.longitudinalActuatorDelayLowerBound = 0.3
-      ret.longitudinalActuatorDelayUpperBound = 0.3
+      ret.startingAccelRate = 24.  # release brakes fast
+      ret.longitudinalActuatorDelayLowerBound = 0.2
+      ret.longitudinalActuatorDelayUpperBound = 0.2
     else:
       # Default longitudinal tune
       ret.longitudinalTuning.deadzoneBP = [0., 9.]
