@@ -394,16 +394,20 @@ class CarInterface(CarInterfaceBase):
 
     if candidate in [CAR.COROLLA_TSS2, CAR.COROLLAH_TSS2, CAR.RAV4_TSS2, CAR.RAV4H_TSS2, CAR.LEXUS_NX_TSS2]:
       # Improved longitudinal tune
-      ret.longitudinalTuning.deadzoneBP = [0., 8.05]
-      ret.longitudinalTuning.deadzoneV = [.0, .14]
-      ret.longitudinalTuning.kpBP = [0., 5., 20.]
-      ret.longitudinalTuning.kpV = [1.3, 1.0, 0.7]
-      ret.longitudinalTuning.kiBP = [0., 5., 12., 20., 27.]
-      ret.longitudinalTuning.kiV = [.35, .23, .20, .17, .1]
-      ret.longitudinalTuning.kdBP = [0., 5., 35.]
-      ret.longitudinalTuning.kdV = [1.6, 1.2, 0.5]
-      ret.stoppingDecelRate = 0.3  # reach stopping target smoothly
+      ret.longitudinalTuning.deadzoneBP = [0.]
+      ret.longitudinalTuning.deadzoneV = [0.]
+      ret.longitudinalTuning.kpBP = [0.5, 0.5, 0.25]
+      ret.longitudinalTuning.kpV = [0.]
+      ret.longitudinalTuning.kiBP = [0.]
+      ret.longitudinalTuning.kiV = [0.]
+      ret.vEgoStopping = 0.2  # car is near 0.1 to 0.2 when car starts requesting stopping accel
+      ret.vEgoStarting = 0.2  # needs to be > or == vEgoStopping
+      ret.startAccel = 0.0  # Toyota requests 0 instantly, then hands control off to some controller
+      ret.stopAccel = -0.4  # Toyota requests -0.4 when stopped
+      ret.stoppingDecelRate = 0.8  # reach stopping target smoothly - seems to take 0.5 seconds to go from 0 to -0.4
       ret.startingAccelRate = 6.0  # release brakes fast
+      ret.longitudinalActuatorDelayLowerBound = 0.3
+      ret.longitudinalActuatorDelayUpperBound = 0.3
     else:
       # Default longitudinal tune
       ret.longitudinalTuning.deadzoneBP = [0., 9.]
