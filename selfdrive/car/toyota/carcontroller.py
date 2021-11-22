@@ -10,6 +10,7 @@ from opendbc.can.packer import CANPacker
 from common.op_params import opParams
 
 VisualAlert = car.CarControl.HUDControl.VisualAlert
+LongCtrlState = car.CarControl.Actuators.LongControlState
 
 
 def accel_hysteresis(accel, accel_steady, enabled):
@@ -99,9 +100,9 @@ class CarController():
       pcm_cancel_cmd = 1
 
     # on entering standstill, send standstill request
-    if CS.out.standstill and not self.last_standstill:
+    if actuators.longControlState == LongCtrlState.stopping:
       self.standstill_req = True
-    if CS.pcm_acc_status != 8:
+    if CS.pcm_acc_status == 0:
       # pcm entered standstill or it's disabled
       self.standstill_req = False
 
