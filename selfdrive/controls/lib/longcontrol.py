@@ -86,7 +86,7 @@ class LongControl():
 
       if self.op_params.get('fake_lead'):
         v_target = max(CS.vEgo - 0.2 * DT_CTRL, 0)
-        a_target = -2
+        a_target = -0.2
     else:
       v_target = 0.0
       v_target_future = 0.0
