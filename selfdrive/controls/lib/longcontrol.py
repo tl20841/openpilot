@@ -60,7 +60,7 @@ class LongControl():
     self.v_pid = 0.0
     self.last_output_accel = 0.0
 
-    # self.op_params = opParams()
+    self.op_params = opParams()
     # self.dynamic_gas = DynamicGas(CP, candidate)
 
   def reset(self, v_pid):
@@ -83,6 +83,10 @@ class LongControl():
 
       v_target = long_plan.speeds[0]
       v_target_future = long_plan.speeds[-1]  # ~2 seconds
+
+      if self.op_params.get('fake_lead'):
+        v_target = max(CS.vEgo - 0.2 * DT_CTRL, 0)
+        a_target = -2
     else:
       v_target = 0.0
       v_target_future = 0.0
