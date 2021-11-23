@@ -48,8 +48,6 @@ class CarController():
     self.last_steer = 0
     self.accel_steady = 0.
     self.alert_active = False
-    self.last_standstill = False
-    self.standstill_req = False
     self.steer_rate_limited = False
     self.use_interceptor = False
     self.standstill_hack = opParams().get('standstill_hack')
@@ -99,16 +97,14 @@ class CarController():
     if not enabled and CS.pcm_acc_status:
       pcm_cancel_cmd = 1
 
-    # on entering standstill, send standstill request
-    if actuators.longControlState == LongCtrlState.stopping:
-      self.standstill_req = True
-    if CS.pcm_acc_status == 0:
+    # enter standstill state while stopped
+    release_standstill = actuators.longControlState != LongCtrlState.stopping
+    if not enabled:
       # pcm entered standstill or it's disabled
-      self.standstill_req = False
+      release_standstill = False
 
     self.last_steer = apply_steer
     self.last_accel = pcm_accel_cmd
-    self.last_standstill = CS.out.standstill
 
     can_sends = []
 
@@ -135,7 +131,7 @@ class CarController():
       if pcm_cancel_cmd and CS.CP.carFingerprint == CAR.LEXUS_IS:
         can_sends.append(create_acc_cancel_command(self.packer))
       elif CS.CP.openpilotLongitudinalControl:
-        can_sends.append(create_accel_command(self.packer, pcm_accel_cmd, pcm_cancel_cmd, self.standstill_req, lead, CS.acc_type, CS.distance_btn))
+        can_sends.append(create_accel_command(self.packer, pcm_accel_cmd, pcm_cancel_cmd, release_standstill, lead, CS.acc_type, CS.distance_btn))
       else:
         can_sends.append(create_accel_command(self.packer, 0, pcm_cancel_cmd, False, lead, CS.acc_type, CS.distance_btn))
 
