@@ -7,6 +7,7 @@ import cereal.messaging as messaging
 from common.realtime import DT_MDL
 from selfdrive.modeld.constants import T_IDXS
 from selfdrive.config import Conversions as CV
+from selfdrive.controls.lib.dynamic_follow.support import dfProfiles
 from selfdrive.controls.lib.longcontrol import LongCtrlState
 from selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import LongitudinalMpc
 from selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import T_IDXS as T_IDXS_MPC
@@ -16,8 +17,16 @@ from selfdrive.swaglog import cloudlog
 LON_MPC_STEP = 0.2  # first step is 0.2s
 AWARENESS_DECEL = -0.2  # car smoothly decel at .2m/s^2 when user is distracted
 A_CRUISE_MIN = -1.2
-A_CRUISE_MAX_VALS = [1.8, 1.8, 1.5, 1.1, 0.8, 0.6]
-A_CRUISE_MAX_BP = [0., 5., 10., 15., 25., 40.]
+
+#A_CRUISE_MAX_VALS_AGGRESSIVE = [1.6, 1.6, 1.3, 1.1, 0.8, 0.6]
+#A_CRUISE_MAX_BP_AGGRESSIVE = [0., 5., 10., 15., 25., 40.]
+A_CRUISE_MAX_VALS_AGGRESSIVE = [1.8, 1.2, 0.8, 0.6]
+A_CRUISE_MAX_BP_AGGRESSIVE = [0., 15., 25., 40.]
+A_CRUISE_MAX_VALS_RELAXED = [1.6, 1.2, 0.8, 0.6]
+A_CRUISE_MAX_BP_RELAXED = [0., 15., 25., 40.]
+
+A_CRUISE_MAX_VALS = A_CRUISE_MAX_VALS_RELAXED
+A_CRUISE_MAX_BP = A_CRUISE_MAX_BP_RELAXED
 
 # Lookup table for turns
 _A_TOTAL_MAX_V = [2.5, 3.8]
@@ -77,6 +86,15 @@ class Planner:
     # Prevent divergence, smooth in current v_ego
     self.v_desired = self.alpha * self.v_desired + (1 - self.alpha) * v_ego
     self.v_desired = max(0.0, self.v_desired)
+
+    global A_CRUISE_MAX_VALS
+    global A_CRUISE_MAX_BP
+    if self.mpc.dynamic_follow.user_profile == dfProfiles.traffic:
+      A_CRUISE_MAX_VALS = A_CRUISE_MAX_VALS_AGGRESSIVE
+      A_CRUISE_MAX_BP = A_CRUISE_MAX_BP_AGGRESSIVE
+    else:
+      A_CRUISE_MAX_VALS = A_CRUISE_MAX_VALS_RELAXED
+      A_CRUISE_MAX_BP = A_CRUISE_MAX_BP_RELAXED
 
     accel_limits = [A_CRUISE_MIN, get_max_accel(v_ego)]
     accel_limits_turns = limit_accel_in_turns(v_ego, sm['carState'].steeringAngleDeg, accel_limits, self.CP)
