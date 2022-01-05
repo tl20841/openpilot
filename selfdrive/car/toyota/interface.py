@@ -320,6 +320,9 @@ class CarInterface(CarInterfaceBase):
       ret.stopAccel = -2.0  # Toyota requests -0.4 when stopped
       ret.stoppingDecelRate = 0.8  # reach stopping target smoothly - seems to take 0.5 seconds to go from 0 to -0.4
       ret.startingAccelRate = 20.  # release brakes fast
+      ret.startAccel = 1.0
+      ret.longitudinalActuatorDelayLowerBound = 0.6
+      ret.longitudinalActuatorDelayUpperBound = 0.6
     else:
       set_long_tune(ret.longitudinalTuning, LongTunes.TSS)
 
