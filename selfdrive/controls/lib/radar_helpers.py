@@ -39,10 +39,22 @@ class Track():
     self.aLeadK = float(self.kf.x[ACCEL][0])
 
     # Learn if constant acceleration
-    if abs(self.aLeadK) < 0.5:
-      self.aLeadTau = _LEAD_ACCEL_TAU
+#    if abs(self.aLeadK) < 0.5:
+#      self.aLeadTau = _LEAD_ACCEL_TAU
+#    else:
+#      self.aLeadTau *= 0.9
+    if v_lead >= 15.0 and self.dRel >= 15.0:
+      if abs(self.aLeadK) < 0.5:
+        self.aLeadTau = _LEAD_ACCEL_TAU
+      else:
+        self.aLeadTau *= 0.9
     else:
-      self.aLeadTau *= 0.9
+      if self.aLeadK > 0.0 and self.aLeadK < 0.5:
+        self.aLeadTau = _LEAD_ACCEL_TAU
+      elif self.aLeadK < 0.0:
+        self.aLeadTau = 0.0
+      else:
+        self.aLeadTau *= 0.9
 
     self.cnt += 1
 

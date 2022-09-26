@@ -36,7 +36,8 @@ X_EGO_COST = 0.
 V_EGO_COST = 0.
 A_EGO_COST = 0.
 J_EGO_COST = 5.0
-A_CHANGE_COST = .5
+#A_CHANGE_COST = .5
+A_CHANGE_COST = .3
 DANGER_ZONE_COST = 100.
 CRASH_DISTANCE = .5
 LIMIT_COST = 1e6
@@ -151,7 +152,7 @@ def gen_long_mpc_solver():
   constraints = vertcat((v_ego),
                         (a_ego - a_min),
                         (a_max - a_ego),
-                        ((x_obstacle - x_ego) - (0.64) * (desired_dist_comfort)) / (v_ego + 10.))
+                        ((x_obstacle - x_ego) - (0.66) * (desired_dist_comfort)) / (v_ego + 10.))
   ocp.model.con_h_expr = constraints
   ocp.model.con_h_expr_e = vertcat(np.zeros(CONSTR_DIM))
 
@@ -244,6 +245,10 @@ class LongitudinalMpc():
     x_ego_obstacle_cost_multiplier = 1  # interp(self.desired_TR, TRs, [3., 1.0, 0.1])
     j_ego_cost_multiplier = 1  # interp(self.desired_TR, TRs, [0.5, 1.0, 1.0])
     d_zone_cost_multiplier = 1  # interp(self.desired_TR, TRs, [4., 1.0, 1.0])
+
+    global A_CHANGE_COST
+    if self.desired_TR == 1.81:
+      A_CHANGE_COST = 0.0
 
     W = np.asfortranarray(np.diag([X_EGO_OBSTACLE_COST * x_ego_obstacle_cost_multiplier, X_EGO_COST, V_EGO_COST, A_EGO_COST, A_CHANGE_COST, J_EGO_COST * j_ego_cost_multiplier]))
     for i in range(N):

@@ -18,12 +18,16 @@ LON_MPC_STEP = 0.2  # first step is 0.2s
 AWARENESS_DECEL = -0.2  # car smoothly decel at .2m/s^2 when user is distracted
 A_CRUISE_MIN = -1.2
 
-#A_CRUISE_MAX_VALS_AGGRESSIVE = [1.6, 1.6, 1.3, 1.1, 0.8, 0.6]
-#A_CRUISE_MAX_BP_AGGRESSIVE = [0., 5., 10., 15., 25., 40.]
-A_CRUISE_MAX_VALS_AGGRESSIVE = [1.8, 1.2, 0.8, 0.6]
-A_CRUISE_MAX_BP_AGGRESSIVE = [0., 15., 25., 40.]
-A_CRUISE_MAX_VALS_RELAXED = [1.6, 1.2, 0.8, 0.6]
+A_CRUISE_MAX_VALS_AGGRESSIVE = [2.0, 2.0, 1.2, 1.0, 0.7, 0.5]
+A_CRUISE_MAX_BP_AGGRESSIVE = [0., 3., 5., 15., 25., 40.]
+#A_CRUISE_MAX_VALS_AGGRESSIVE = [1.8, 1.2, 0.8, 0.6]
+#A_CRUISE_MAX_BP_AGGRESSIVE = [0., 15., 25., 40.]
+
+A_CRUISE_MAX_VALS_RELAXED = [1.2, 1.0, 0.7, 0.5]
 A_CRUISE_MAX_BP_RELAXED = [0., 15., 25., 40.]
+
+A_CRUISE_MAX_VALS_SEMI_RELAXED = [1.0, 0.8, 0.6, 0.4]
+A_CRUISE_MAX_BP_SEMI_RELAXED = [0., 15., 25., 40.]
 
 A_CRUISE_MAX_VALS = A_CRUISE_MAX_VALS_RELAXED
 A_CRUISE_MAX_BP = A_CRUISE_MAX_BP_RELAXED
@@ -87,14 +91,32 @@ class Planner:
     self.v_desired = self.alpha * self.v_desired + (1 - self.alpha) * v_ego
     self.v_desired = max(0.0, self.v_desired)
 
+    # Try some experiments.
     global A_CRUISE_MAX_VALS
     global A_CRUISE_MAX_BP
     if self.mpc.dynamic_follow.user_profile == dfProfiles.traffic:
       A_CRUISE_MAX_VALS = A_CRUISE_MAX_VALS_AGGRESSIVE
       A_CRUISE_MAX_BP = A_CRUISE_MAX_BP_AGGRESSIVE
+#      A_CRUISE_MAX_VALS = A_CRUISE_MAX_VALS_SEMI_RELAXED
+#      A_CRUISE_MAX_BP = A_CRUISE_MAX_BP_SEMI_RELAXED
+    elif self.mpc.dynamic_follow.user_profile == dfProfiles.stock:
+      A_CRUISE_MAX_VALS = A_CRUISE_MAX_VALS_SEMI_RELAXED
+      A_CRUISE_MAX_BP = A_CRUISE_MAX_BP_SEMI_RELAXED
     else:
-      A_CRUISE_MAX_VALS = A_CRUISE_MAX_VALS_RELAXED
-      A_CRUISE_MAX_BP = A_CRUISE_MAX_BP_RELAXED
+      A_CRUISE_MAX_VALS = A_CRUISE_MAX_VALS_AGGRESSIVE
+      A_CRUISE_MAX_BP = A_CRUISE_MAX_BP_AGGRESSIVE
+#      A_CRUISE_MAX_VALS = A_CRUISE_MAX_VALS_RELAXED
+#      A_CRUISE_MAX_BP = A_CRUISE_MAX_BP_RELAXED
+
+    # Try some experiments.
+#    if sm['radarState'].leadOne.status:
+#      if self.mpc.dynamic_follow.user_profile == dfProfiles.traffic:
+#        # If there is a lead, limit cruise speed to lead car + 15%.
+##        v_cruise = min(v_cruise, sm['radarState'].leadOne.vLead * 1.15 + 0.7)
+##        v_cruise = min(v_cruise - 6.7, sm['radarState'].leadOne.vLead * 1.15)
+#        v_cruise = min(v_cruise, sm['radarState'].leadOne.vLead * 1.15)
+##      elif self.mpc.dynamic_follow.user_profile == dfProfiles.stock:
+##        v_cruise = min(v_cruise, sm['radarState'].leadOne.vLead * 1.15)
 
     accel_limits = [A_CRUISE_MIN, get_max_accel(v_ego)]
     accel_limits_turns = limit_accel_in_turns(v_ego, sm['carState'].steeringAngleDeg, accel_limits, self.CP)

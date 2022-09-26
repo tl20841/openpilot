@@ -251,13 +251,21 @@ class DynamicFollow:
       self.profile_change_time = sec_since_boot()
     self.last_effective_profile = df_profile
 
-    if df_profile == self.df_profiles.traffic or df_profile == self.df_profiles.stock:  # for in congested traffic
-      x_vel = [0.0, 1.892, 3.7432, 5.8632, 8.0727, 10.7301, 14.343, 17.6275, 22.4049, 28.6752, 34.8858, 40.35]  # velocities
-      y_dist = [1.3781, 1.3791, 1.3457, 1.3134, 1.3145, 1.318, 1.3485, 1.257, 1.144, 0.979, 0.9461, 0.9156]
-    elif df_profile == self.df_profiles.roadtrip:  # previous stock following distance
-      return 1.8
+##    if df_profile == self.df_profiles.traffic or df_profile == self.df_profiles.stock:  # for in congested traffic
+#    if df_profile == self.df_profiles.traffic:  # for in congested traffic
+#      x_vel = [0.0, 1.892, 3.7432, 5.8632, 8.0727, 10.7301, 14.343, 17.6275, 22.4049, 28.6752, 34.8858, 40.35]  # velocities
+#      y_dist = [1.3781, 1.3791, 1.3457, 1.3134, 1.3145, 1.318, 1.3485, 1.257, 1.144, 0.979, 0.9461, 0.9156]
+##    elif df_profile == self.df_profiles.roadtrip:  # previous stock following distance
+#    else:
+#      return 1.8
+##    else:
+##      raise Exception('Unknown profile type: {}'.format(df_profile))
+    if df_profile == self.df_profiles.traffic:
+      return 1.81
+    elif df_profile == self.df_profiles.stock:
+      return 1.811
     else:
-      raise Exception('Unknown profile type: {}'.format(df_profile))
+      return 1.8
 
     # Global df mod
     y_dist = self.global_profile_mod(x_vel, y_dist)
