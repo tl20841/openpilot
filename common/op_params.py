@@ -136,6 +136,8 @@ class opParams:
 
       'dynamic_follow': Param('stock', str, static=True, hidden=True),
       'lane_speed_alerts': Param('silent', str, static=True, hidden=True),
+
+      'accel_profile': Param('aggressive', str),
     }
 
     self._to_delete = []  # a list of unused params you want to delete from users' params file

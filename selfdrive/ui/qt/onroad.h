@@ -18,14 +18,14 @@ public:
 
 private:
   QPushButton *dfButton;
-  QPushButton *lsButton;
+  QPushButton *accelProfileButton;
   QPushButton *mlButton;
 
   int dfStatus = -1;  // always initialize style sheet and send msg
   const QStringList dfButtonColors = {"#044389", "#24a8bc", "#fcff4b", "#37b868"};
 
-  int lsStatus = -1;  // always initialize style sheet and send msg
-  const QStringList lsButtonColors = {"#ff3737", "#37b868", "#044389"};
+  QString accelProfileStatus = "";  // always initialize style sheet and send msg
+  const QStringList accelProfileButtonColors = {"#ff3737", "#37b868", "#044389"};
 
   // model long button
   bool mlEnabled = true;  // triggers initialization

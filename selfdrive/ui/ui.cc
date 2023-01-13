@@ -33,6 +33,14 @@ void saInit(UIState *s) {
     qDebug() << "Set lsButtonStatus to " << QString::fromStdString(lane_speed_alerts);
     s->scene.lsButtonStatus = LS_TO_IDX[lane_speed_alerts];
   }
+  std::string accel_profile = util::read_file("/data/community/params/accel_profile");
+  if (accel_profile == "") {
+    accel_profile = "aggressive";
+  } else {
+    accel_profile = accel_profile.substr(1, accel_profile.find_last_of('"') - 1);
+  }
+  qDebug() << "Set accelProfileStatus to " << QString::fromStdString(accel_profile);
+  s->scene.accelProfileStatus = QString::fromStdString(accel_profile);
 }
 
 // Projects a point in car to space to the corresponding point in full frame
@@ -245,10 +253,10 @@ UIState::UIState(QObject *parent) : QObject(parent) {
   std::string toyota_distance_btn = util::read_file("/data/community/params/toyota_distance_btn");
   if (toyota_distance_btn == "true") {
     enable_distance_btn = true;
-    pm = std::make_unique<PubMaster, const std::initializer_list<const char *>>({"laneSpeedButton", "modelLongButton"});
+    pm = std::make_unique<PubMaster, const std::initializer_list<const char *>>({"laneSpeedButton", "modelLongButton", "accelProfile"});
   } else {
     enable_distance_btn = false;
-    pm = std::make_unique<PubMaster, const std::initializer_list<const char *>>({"laneSpeedButton", "dynamicFollowButton", "modelLongButton"});
+    pm = std::make_unique<PubMaster, const std::initializer_list<const char *>>({"laneSpeedButton", "dynamicFollowButton", "modelLongButton", "accelProfile"});
   }
 
   Params params;

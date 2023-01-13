@@ -135,14 +135,20 @@ ButtonsWindow::ButtonsWindow(QWidget *parent) : QWidget(parent) {
     mlButton->hide();
   }
 
-  // Lane speed button
-  lsButton = new QPushButton("LS\nmode");
-  QObject::connect(lsButton, &QPushButton::clicked, [=]() {
-    uiState()->scene.lsButtonStatus = lsStatus < 2 ? lsStatus + 1 : 0;  // wrap back around
+  // Accel profile button
+  accelProfileButton = new QPushButton("Accel\nProfile");
+  QObject::connect(accelProfileButton, &QPushButton::clicked, [=]() {
+    if (accelProfileStatus == "aggressive") {
+      uiState()->scene.accelProfileStatus = "normal";
+    } else if (accelProfileStatus == "normal") {
+      uiState()->scene.accelProfileStatus = "relaxed";
+    } else if (accelProfileStatus == "relaxed") {
+      uiState()->scene.accelProfileStatus = "aggressive";
+    }
   });
-  lsButton->setFixedWidth(200);
-  lsButton->setFixedHeight(200);
-  btns_layout->addWidget(lsButton, 0, Qt::AlignRight);
+  accelProfileButton->setFixedWidth(200);
+  accelProfileButton->setFixedHeight(200);
+  btns_layout->addWidget(accelProfileButton, 0, Qt::AlignRight);
   btns_layout->addSpacing(35);
 
   // Dynamic follow button
@@ -183,14 +189,32 @@ void ButtonsWindow::updateState(const UIState &s) {
     }
   }
 
-  if (lsStatus != s.scene.lsButtonStatus) {  // update lane speed button
-    lsStatus = s.scene.lsButtonStatus;
-    lsButton->setStyleSheet(QString("font-size: 45px; border-radius: 100px; border-color: %1").arg(lsButtonColors.at(lsStatus)));
+  if (accelProfileStatus != s.scene.accelProfileStatus) {  // update accel profile button
+    accelProfileStatus = s.scene.accelProfileStatus;
 
+    // update icon border color
+    QString border_color = "";
+    if (accelProfileStatus == "aggressive") {
+      border_color = "#ff0000";
+    } else if (accelProfileStatus == "normal") {
+      border_color = "#00ff00";
+    } else if (accelProfileStatus == "relaxed") {
+      border_color = "#0000ff";
+    }
+    accelProfileButton->setStyleSheet(
+        QString("font-size: 45px; border-radius: 100px; border-color: %1").arg(border_color));
+
+    // send new profile status
     MessageBuilder msg;
-    auto lsButtonStatus = msg.initEvent().initLaneSpeedButton();
-    lsButtonStatus.setStatus(lsStatus);
-    uiState()->pm->send("laneSpeedButton", msg);
+    auto accelProfile = msg.initEvent().initAccelProfile();
+    accelProfile.setStatus(accelProfileStatus.toStdString().c_str());
+    uiState()->pm->send("accelProfile", msg);
+
+    // persist setting
+    std::string accel_profile_status = "\"" + accelProfileStatus.toStdString() + "\"";
+    util::write_file(
+        "/data/community/params/accel_profile", accel_profile_status.c_str(),
+        accel_profile_status.length(), O_WRONLY | O_CREAT | O_TRUNC);
   }
 
   if (mlEnabled != s.scene.mlButtonEnabled) {  // update model longitudinal button

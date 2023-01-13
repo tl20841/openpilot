@@ -2,6 +2,7 @@
 import math
 import numpy as np
 from common.numpy_fast import interp
+from common.op_params import opParams
 
 import cereal.messaging as messaging
 from common.realtime import DT_MDL
@@ -18,16 +19,16 @@ LON_MPC_STEP = 0.2  # first step is 0.2s
 AWARENESS_DECEL = -0.2  # car smoothly decel at .2m/s^2 when user is distracted
 A_CRUISE_MIN = -1.2
 
-A_CRUISE_MAX_VALS_AGGRESSIVE = [2.0, 2.0, 1.2, 1.0, 0.7, 0.5]
+A_CRUISE_MAX_VALS_AGGRESSIVE = [2.0, 1.8, 1.6, 1.0, 0.7, 0.5]
 A_CRUISE_MAX_BP_AGGRESSIVE = [0., 3., 5., 15., 25., 40.]
 #A_CRUISE_MAX_VALS_AGGRESSIVE = [1.8, 1.2, 0.8, 0.6]
 #A_CRUISE_MAX_BP_AGGRESSIVE = [0., 15., 25., 40.]
 
-A_CRUISE_MAX_VALS_RELAXED = [1.2, 1.0, 0.7, 0.5]
-A_CRUISE_MAX_BP_RELAXED = [0., 15., 25., 40.]
-
-A_CRUISE_MAX_VALS_SEMI_RELAXED = [1.0, 0.8, 0.6, 0.4]
+A_CRUISE_MAX_VALS_SEMI_RELAXED = [1.0, 0.8, 0.5, 0.3]
 A_CRUISE_MAX_BP_SEMI_RELAXED = [0., 15., 25., 40.]
+
+A_CRUISE_MAX_VALS_RELAXED = [0.3, 0.4, 0.3, 0.2]
+A_CRUISE_MAX_BP_RELAXED = [0., 15., 25., 40.]
 
 A_CRUISE_MAX_VALS = A_CRUISE_MAX_VALS_RELAXED
 A_CRUISE_MAX_BP = A_CRUISE_MAX_BP_RELAXED
@@ -69,6 +70,11 @@ class Planner:
     self.a_desired_trajectory = np.zeros(CONTROL_N)
     self.j_desired_trajectory = np.zeros(CONTROL_N)
 
+    op_params = opParams()
+    self.accel_profile = op_params.get('accel_profile')
+    if self.accel_profile not in ['aggressive', 'normal', 'relaxed']:
+      self.accel_profile = 'aggressive'
+
   def update(self, sm):
     v_ego = sm['carState'].vEgo
     a_ego = sm['carState'].aEgo
@@ -86,27 +92,27 @@ class Planner:
       self.a_desired = a_ego
       # Smoothly changing between accel trajectory is only relevant when OP is driving
       prev_accel_constraint = False
+    elif sm['carState'].standstill:
+      prev_accel_constraint = False
 
     # Prevent divergence, smooth in current v_ego
     self.v_desired = self.alpha * self.v_desired + (1 - self.alpha) * v_ego
     self.v_desired = max(0.0, self.v_desired)
 
     # Try some experiments.
-    global A_CRUISE_MAX_VALS
-    global A_CRUISE_MAX_BP
-    if self.mpc.dynamic_follow.user_profile == dfProfiles.traffic:
-      A_CRUISE_MAX_VALS = A_CRUISE_MAX_VALS_AGGRESSIVE
-      A_CRUISE_MAX_BP = A_CRUISE_MAX_BP_AGGRESSIVE
-#      A_CRUISE_MAX_VALS = A_CRUISE_MAX_VALS_SEMI_RELAXED
-#      A_CRUISE_MAX_BP = A_CRUISE_MAX_BP_SEMI_RELAXED
-    elif self.mpc.dynamic_follow.user_profile == dfProfiles.stock:
-      A_CRUISE_MAX_VALS = A_CRUISE_MAX_VALS_SEMI_RELAXED
-      A_CRUISE_MAX_BP = A_CRUISE_MAX_BP_SEMI_RELAXED
+    a_cruise_max_vals = A_CRUISE_MAX_VALS_AGGRESSIVE
+    a_cruise_max_bp = A_CRUISE_MAX_BP_AGGRESSIVE
+    if sm['accelProfile'].status:
+      self.accel_profile = sm['accelProfile'].status
+    if self.accel_profile == 'relaxed':
+      a_cruise_max_vals = A_CRUISE_MAX_VALS_RELAXED
+      a_cruise_max_bp = A_CRUISE_MAX_BP_RELAXED
+    elif self.accel_profile == 'normal':
+      a_cruise_max_vals = A_CRUISE_MAX_VALS_SEMI_RELAXED
+      a_cruise_max_bp = A_CRUISE_MAX_BP_SEMI_RELAXED
     else:
-      A_CRUISE_MAX_VALS = A_CRUISE_MAX_VALS_AGGRESSIVE
-      A_CRUISE_MAX_BP = A_CRUISE_MAX_BP_AGGRESSIVE
-#      A_CRUISE_MAX_VALS = A_CRUISE_MAX_VALS_RELAXED
-#      A_CRUISE_MAX_BP = A_CRUISE_MAX_BP_RELAXED
+      a_cruise_max_vals = A_CRUISE_MAX_VALS_AGGRESSIVE
+      a_cruise_max_bp = A_CRUISE_MAX_BP_AGGRESSIVE
 
     # Try some experiments.
 #    if sm['radarState'].leadOne.status:
@@ -118,7 +124,9 @@ class Planner:
 ##      elif self.mpc.dynamic_follow.user_profile == dfProfiles.stock:
 ##        v_cruise = min(v_cruise, sm['radarState'].leadOne.vLead * 1.15)
 
-    accel_limits = [A_CRUISE_MIN, get_max_accel(v_ego)]
+    max_accel = interp(v_ego, a_cruise_max_bp, a_cruise_max_vals)
+    accel_limits = [A_CRUISE_MIN, max_accel]
+    accel_limits_turns = limit_accel_in_turns(v_ego, sm['carState'].steeringAngleDeg, accel_limits, self.CP)
     accel_limits_turns = limit_accel_in_turns(v_ego, sm['carState'].steeringAngleDeg, accel_limits, self.CP)
     if force_slow_decel:
       # if required so, force a smooth deceleration
@@ -127,9 +135,12 @@ class Planner:
     # clip limits, cannot init MPC outside of bounds
     accel_limits_turns[0] = min(accel_limits_turns[0], self.a_desired + 0.05)
     accel_limits_turns[1] = max(accel_limits_turns[1], self.a_desired - 0.05)
+
+    self.mpc.set_weights(prev_accel_constraint)
     self.mpc.set_accel_limits(accel_limits_turns[0], accel_limits_turns[1])
     self.mpc.set_cur_state(self.v_desired, self.a_desired)
     self.mpc.update(sm['carState'], sm['radarState'], v_cruise, prev_accel_constraint=prev_accel_constraint)
+
     self.v_desired_trajectory = np.interp(T_IDXS[:CONTROL_N], T_IDXS_MPC, self.mpc.v_solution)
     self.a_desired_trajectory = np.interp(T_IDXS[:CONTROL_N], T_IDXS_MPC, self.mpc.a_solution)
     self.j_desired_trajectory = np.interp(T_IDXS[:CONTROL_N], T_IDXS_MPC[:-1], self.mpc.j_solution)

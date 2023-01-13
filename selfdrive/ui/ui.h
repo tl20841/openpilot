@@ -101,6 +101,7 @@ typedef struct UIScene {
   // SA button statuses
   int dfButtonStatus = 0;
   int lsButtonStatus = 0;
+  QString accelProfileStatus = "";
   bool mlButtonEnabled = false;
 } UIScene;
 
