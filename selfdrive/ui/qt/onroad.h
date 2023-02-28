@@ -18,6 +18,7 @@ public:
 
 private:
   QPushButton *dfButton;
+  QPushButton *recordButton;
   QPushButton *accelProfileButton;
   QPushButton *mlButton;
 

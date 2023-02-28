@@ -135,6 +135,29 @@ ButtonsWindow::ButtonsWindow(QWidget *parent) : QWidget(parent) {
     mlButton->hide();
   }
 
+  // Record button
+  recordButton = new QPushButton("Record\nStop");
+  recordButton->setStyleSheet(QString("font-size: 45px; border-radius: 100px; border-color: #00ff00"));
+  QObject::connect(recordButton, &QPushButton::clicked, [=]() {
+    QString text = recordButton->text();
+    std::string record_file_content;
+    if (text == "Record\nStop") {
+      record_file_content = "record";
+      recordButton->setText("Record\nStart");
+      recordButton->setStyleSheet(QString("font-size: 45px; border-radius: 100px; border-color: #ff0000"));
+    } else {
+      record_file_content = "";
+      recordButton->setText("Record\nStop");
+      recordButton->setStyleSheet(QString("font-size: 45px; border-radius: 100px; border-color: #00ff00"));
+    }
+    util::write_file("/mnt/record", record_file_content.c_str(),
+        record_file_content.length(), O_WRONLY | O_CREAT | O_TRUNC);
+  });
+  recordButton->setFixedWidth(200);
+  recordButton->setFixedHeight(200);
+  btns_layout->addWidget(recordButton, 0, Qt::AlignLeft);
+  btns_layout->addSpacing(35);
+
   // Accel profile button
   accelProfileButton = new QPushButton("Accel\nProfile");
   QObject::connect(accelProfileButton, &QPushButton::clicked, [=]() {
@@ -194,13 +217,18 @@ void ButtonsWindow::updateState(const UIState &s) {
 
     // update icon border color
     QString border_color = "";
+    QString text = "Accel\nProfile";
     if (accelProfileStatus == "aggressive") {
+      text = "Accel\nHi";
       border_color = "#ff0000";
     } else if (accelProfileStatus == "normal") {
+      text = "Accel\nMed";
       border_color = "#00ff00";
     } else if (accelProfileStatus == "relaxed") {
+      text = "Accel\nLow";
       border_color = "#0000ff";
     }
+    accelProfileButton->setText(text);
     accelProfileButton->setStyleSheet(
         QString("font-size: 45px; border-radius: 100px; border-color: %1").arg(border_color));
 

@@ -13,7 +13,7 @@ procs = [
   NativeProcess("clocksd", "selfdrive/clocksd", ["./clocksd"]),
   NativeProcess("dmonitoringmodeld", "selfdrive/modeld", ["./dmonitoringmodeld"], enabled=(not PC or WEBCAM), driverview=True),
   NativeProcess("logcatd", "selfdrive/logcatd", ["./logcatd"]),
-#  NativeProcess("loggerd", "selfdrive/loggerd", ["./loggerd"]),
+  NativeProcess("loggerd", "selfdrive/loggerd", ["./loggerd"]),
   NativeProcess("modeld", "selfdrive/modeld", ["./modeld"]),
   NativeProcess("navd", "selfdrive/ui/navd", ["./navd"], enabled=(PC or TICI), persistent=True),
   NativeProcess("proclogd", "selfdrive/proclogd", ["./proclogd"]),
@@ -36,7 +36,7 @@ procs = [
   PythonProcess("thermald", "selfdrive.thermald.thermald", persistent=True),
   PythonProcess("timezoned", "selfdrive.timezoned", enabled=TICI, persistent=True),
   PythonProcess("tombstoned", "selfdrive.tombstoned", enabled=not PC, persistent=True),
-  PythonProcess("uploader", "selfdrive.loggerd.uploader", persistent=True),
+#  PythonProcess("uploader", "selfdrive.loggerd.uploader", persistent=True),
 
   # EON only
   PythonProcess("rtshield", "selfdrive.rtshield", enabled=EON),

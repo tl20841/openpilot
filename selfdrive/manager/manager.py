@@ -142,10 +142,17 @@ def manager_thread():
 
   while True:
     sm.update()
-    not_run = ignore[:]
+    not_run = set(ignore)
 
     if sm['deviceState'].freeSpacePercent < 5:
-      not_run.append("loggerd")
+      not_run.add("loggerd")
+
+    try:
+      with open('/mnt/record', 'r') as f:
+        if not f.read():
+          not_run.add('loggerd')
+    except:
+      not_run.add('loggerd')
 
     started = sm['deviceState'].started
     driverview = params.get_bool("IsDriverViewEnabled")
