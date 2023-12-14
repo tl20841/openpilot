@@ -51,9 +51,17 @@ def long_control_state_trans(CP, active, long_control_state, v_ego, v_target_fut
 class LongControl():
   def __init__(self, CP):
     self.long_control_state = LongCtrlState.off  # initialized to off
+    # k_f=1.0
+    # k_f=0.75
+    # k_f=0.65
+    # k_f=0.80
+    # k_f=0.75
+    # k_f=0.70
     self.pid = PIDController((CP.longitudinalTuning.kpBP, CP.longitudinalTuning.kpV),
                              (CP.longitudinalTuning.kiBP, CP.longitudinalTuning.kiV),
                              (CP.longitudinalTuning.kdBP, CP.longitudinalTuning.kdV),
+#                             k_f=(0.85, 0.65),
+                             k_f=(0.75, 0.7),
                              rate=1/DT_CTRL,
                              sat_limit=0.8,
                              derivative_period=0.5)
@@ -79,11 +87,7 @@ class LongControl():
 
       v_target_upper = interp(CP.longitudinalActuatorDelayUpperBound, T_IDXS[:CONTROL_N], long_plan.speeds)
       a_target_upper = 2 * (v_target_upper - long_plan.speeds[0])/CP.longitudinalActuatorDelayUpperBound - long_plan.accels[0]
-#      a_target = min(a_target_lower, a_target_upper)
-      if a_target_lower < 0 or a_target_upper < 0:
-        a_target = a_target_lower
-      else:
-        a_target = a_target_upper
+      a_target = min(a_target_lower, a_target_upper)
 
       v_target_future = long_plan.speeds[-1]
     else:

@@ -17,7 +17,7 @@ def apply_deadzone(error, deadzone):
 
 
 class PIDController:
-  def __init__(self, k_p=0., k_i=0., k_d=0., k_f=1., pos_limit=None, neg_limit=None, rate=100, sat_limit=0.8, derivative_period=1.):
+  def __init__(self, k_p=0., k_i=0., k_d=0., k_f=(1., 1.), pos_limit=None, neg_limit=None, rate=100, sat_limit=0.8, derivative_period=1.):
     self.op_params = opParams()
     self._k_p = k_p  # proportional gain
     self._k_i = k_i  # integral gain
@@ -79,7 +79,8 @@ class PIDController:
 
     error = float(apply_deadzone(setpoint - measurement, deadzone))
     self.p = error * self.k_p
-    self.f = feedforward * self.k_f
+    k_f = self.k_f[1] if setpoint >= 0.0 else self.k_f[0]
+    self.f = feedforward * k_f
 
     d = 0
     if len(self.errors) >= self._d_period:  # makes sure we have enough history for period

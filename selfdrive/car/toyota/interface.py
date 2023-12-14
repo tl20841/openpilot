@@ -318,16 +318,17 @@ class CarInterface(CarInterfaceBase):
     elif candidate in [CAR.COROLLA_TSS2, CAR.COROLLAH_TSS2, CAR.RAV4_TSS2, CAR.RAV4H_TSS2, CAR.LEXUS_NX_TSS2,
                        CAR.HIGHLANDER_TSS2, CAR.HIGHLANDERH_TSS2, CAR.PRIUS_TSS2, CAR.CAMRY_TSS2, CAR.CAMRYH_TSS2]:
       set_long_tune(ret.longitudinalTuning, LongTunes.TSS2)
-      ret.vEgoStopping = 0.6  # car is near 0.1 to 0.2 when car starts requesting stopping accel
-      ret.vEgoStarting = 0.6  # needs to be > or == vEgoStopping
+      ret.vEgoStopping = 0.7  # car is near 0.1 to 0.2 when car starts requesting stopping accel
+      ret.vEgoStarting = 0.7  # needs to be > or == vEgoStopping
+#      ret.vEgoStarting = 0.6  # needs to be > or == vEgoStopping
       ret.startAccel = 0.0  # Toyota requests 0 instantly, then hands control off to some controller
       ret.stopAccel = -2.0  # Toyota requests -0.4 when stopped
 #      ret.stoppingDecelRate = 0.8  # reach stopping target smoothly - seems to take 0.5 seconds to go from 0 to -0.4
-      ret.stoppingDecelRate = 0.3  # reach stopping target smoothly - seems to take 0.5 seconds to go from 0 to -0.4
+      ret.stoppingDecelRate = 0.1  # reach stopping target smoothly - seems to take 0.5 seconds to go from 0 to -0.4
       ret.startingAccelRate = 20.  # release brakes fast
 #      ret.startAccel = 1.0
-      ret.longitudinalActuatorDelayLowerBound = 0.6
-      ret.longitudinalActuatorDelayUpperBound = 0.6
+      ret.longitudinalActuatorDelayLowerBound = 0.2
+      ret.longitudinalActuatorDelayUpperBound = 0.7
     else:
       set_long_tune(ret.longitudinalTuning, LongTunes.TSS)
 
